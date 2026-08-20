@@ -40,3 +40,9 @@ updates:
     commit-message:
       prefix: "fix(deps-js)"
       include: "scope"
+    groups:
+      linting-tools:
+        patterns:
+          - "eslint*"
+          - "stylelint*"
+          - "htmlhint*"

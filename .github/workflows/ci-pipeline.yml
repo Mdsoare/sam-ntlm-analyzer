@@ -13,15 +13,17 @@ permissions:
 
 jobs:
   # -------------------------------------------------------------
-  # JOB 1: Análise de Código e Segurança (SAST & Secrets)
+  # JOB 1: Análise Estática, Linters e Detecção de Segredos
   # -------------------------------------------------------------
   lint-and-security:
-    name: SAST (Linting & Security Scan)
+    name: SAST (Linting & Secret Scan)
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout do Repositório
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Configurar ambiente Node.js
         uses: actions/setup-node@v4
@@ -29,11 +31,14 @@ jobs:
           node-version: "20"
           cache: "npm"
 
-      - name: Instalar Dependências de Desenvolvimento
+      - name: Instalar Dependências
         run: npm ci
 
+      - name: Auditoria de Segurança de Dependências (NPM Audit)
+        run: npm audit --audit-level=high
+
       - name: Scan para detecção de segredos (Secret Detection)
-        uses: trufflesecurity/trufflehog@main
+        uses: trufflesecurity/trufflehog@v3.97.0
         with:
           extra_args: --only-verified
 
@@ -41,20 +46,65 @@ jobs:
         run: npx htmlhint index.html
 
       - name: Validar Estilos CSS (Stylelint)
-        run: npx stylelint "assets/cs/*.css"
+        run: npx stylelint "assets/css/**/*.css"
 
       - name: Análise Estática de Código JavaScript (ESLint)
         run: npx eslint assets/js/script.js
 
   # -------------------------------------------------------------
-  # JOB 2: Análise de Dependências de Software (SCA)
+  # JOB 2: SAST Avançado com CodeQL (Análise Semântica de Taint)
+  # -------------------------------------------------------------
+  sast-codeql:
+    name: SAST (CodeQL Analysis)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+
+      - name: Inicializar CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          queries: security-extended,security-and-quality
+
+      - name: Executar Análise CodeQL
+        uses: github/codeql-action/analyze@v3
+
+  # -------------------------------------------------------------
+  # JOB 3: SAST Rápido baseado em Regras com Semgrep
+  # -------------------------------------------------------------
+  sast-semgrep:
+    name: SAST (Semgrep Scan)
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep
+
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+
+      - name: Executar Varredura Semgrep
+        run: semgrep scan --config auto --sarif --output=semgrep.sarif
+
+      - name: Upload do Relatório SARIF do Semgrep
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: semgrep.sarif
+
+  # -------------------------------------------------------------
+  # JOB 4: Análise de Dependências de Software (SCA)
   # -------------------------------------------------------------
   sca-osv:
     name: SCA (OSV-Scanner)
     uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@v2.5.1
+    with:
+      scan-args: |-
+        --lockfile=package-lock.json
 
   # -------------------------------------------------------------
-  # JOB 3: Validação da Política CSP e Integridade Estrutural
+  # JOB 5: Validação da Política CSP e Integridade Estrutural
   # -------------------------------------------------------------
   csp-and-structure-check:
     name: Validate CSP & File Integrity
@@ -85,11 +135,11 @@ jobs:
           echo "✅ Todos os arquivos essenciais do projeto estão presentes."
 
   # -------------------------------------------------------------
-  # JOB 4: Publicação e Build de Artefatos
+  # JOB 6: Publicação e Build de Artefatos
   # -------------------------------------------------------------
   build-artifact:
     name: Bundle & Upload Artifact
-    needs: [lint-and-security, sca-osv, csp-and-structure-check]
+    needs: [lint-and-security, sast-codeql, sast-semgrep, sca-osv, csp-and-structure-check]
     runs-on: ubuntu-latest
 
     steps:
