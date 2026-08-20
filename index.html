@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self'; object-src 'none'; base-uri 'self';">
+    <title>Analisador Forense de SAM & Hashes NTLM</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="assets/cs/styles.css">
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Analisador de Arquivo SAM & Hives do Registro</h1>
+            <p>Auditoria local de credenciais e mapeamento de contas locais do Windows (NTLM / pwdump parser)</p>
+        </header>
+
+        <div class="alert-box">
+            <strong>Nota Forense de Privacidade:</strong> O processamento e a tokenização dos dados inseridos ocorrem
+            100% no contexto de memória local da sua aplicação (`client-side`). Hashes e contas jamais trafegam pela
+            rede ou saem da sua estação de trabalho.
+        </div>
+
+        <div class="form-group">
+            <label for="samInput">Insira o Dump de Linhas do SAM ou PWDUMP:</label>
+            <textarea id="samInput"
+                placeholder="Exemplo de formato suportado:&#10;Administrator:500:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::&#10;Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::"></textarea>
+        </div>
+
+        <div class="btn-grid">
+            <button id="btnSample" class="action-btn secondary-btn">Carregar Amostra PWDUMP</button>
+            <button id="btnParse" class="action-btn">Analisar e Extrair Hashes</button>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <label>Usuários e Hashes Identificados na Base SAM:</label>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Usuário Local</th>
+                            <th>RID (Identificador)</th>
+                            <th>LM Hash (Legado)</th>
+                            <th>NTLM Hash (Ativo)</th>
+                            <th>Status de Risco</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/script.js"></script>
+</body>
+
+</html>
