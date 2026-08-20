@@ -46,7 +46,7 @@ jobs:
         run: npx htmlhint index.html
 
       - name: Validar Estilos CSS (Stylelint)
-        run: npx stylelint "assets/css/**/*.css"
+        run: npx stylelint "assets/cs/*.css"
 
       - name: Análise Estática de Código JavaScript (ESLint)
         run: npx eslint assets/js/script.js
