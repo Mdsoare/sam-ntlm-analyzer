@@ -94,7 +94,7 @@ jobs:
           sarif_file: semgrep.sarif
 
   # -------------------------------------------------------------
-  # JOB 4: Análise de Dependências de Software (SCA)
+  # JOB 4: Análise de Dependências de Software (SCA) com OSV
   # -------------------------------------------------------------
   sca-osv:
     name: SCA (OSV-Scanner)
@@ -104,7 +104,33 @@ jobs:
         --lockfile=package-lock.json
 
   # -------------------------------------------------------------
-  # JOB 5: Validação da Política CSP e Integridade Estrutural
+  # JOB 5: Análise de Dependências de Software (SCA) com Trivy
+  # -------------------------------------------------------------
+  sca-trivy:
+    name: SCA & Misconfig (Trivy Scan)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+
+      - name: Executar Varredura Trivy (Repository)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          scan-ref: "."
+          format: "sarif"
+          output: "trivy-results.sarif"
+          severity: "CRITICAL,HIGH"
+
+      - name: Upload do Relatório SARIF do Trivy
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: "trivy-results.sarif"
+
+  # -------------------------------------------------------------
+  # JOB 6: Validação da Política CSP e Integridade Estrutural
   # -------------------------------------------------------------
   csp-and-structure-check:
     name: Validate CSP & File Integrity
@@ -114,7 +140,6 @@ jobs:
       - name: Checkout do Repositório
         uses: actions/checkout@v4
 
-      # Valida links externos no HTML ignorando as origens explicitamente permitidas na CSP (Google Fonts)
       - name: Checar se existem dependências externas não autorizadas no HTML
         run: |
           UNAUTHORIZED_LINKS=$(grep -E 'http://|https://' index.html | grep -v 'Content-Security-Policy' | grep -v 'fonts.googleapis.com' | grep -v 'fonts.gstatic.com' || true)
@@ -135,11 +160,19 @@ jobs:
           echo "✅ Todos os arquivos essenciais do projeto estão presentes."
 
   # -------------------------------------------------------------
-  # JOB 6: Publicação e Build de Artefatos
+  # JOB 7: Publicação e Build de Artefatos
   # -------------------------------------------------------------
   build-artifact:
     name: Bundle & Upload Artifact
-    needs: [lint-and-security, sast-codeql, sast-semgrep, sca-osv, csp-and-structure-check]
+    needs:
+      [
+        lint-and-security,
+        sast-codeql,
+        sast-semgrep,
+        sca-osv,
+        sca-trivy,
+        csp-and-structure-check,
+      ]
     runs-on: ubuntu-latest
 
     steps:
@@ -158,3 +191,23 @@ jobs:
           name: sam-forensic-analyzer-build
           path: dist/
           retention-days: 7
+
+  # -------------------------------------------------------------
+  # JOB 8: Análise Dinâmica de Segurança (DAST) com OWASP ZAP
+  # -------------------------------------------------------------
+  dast-zap:
+    name: DAST (OWASP ZAP Baseline Scan)
+    needs: [build-artifact]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+
+      - name: Executar OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.14.0
+        with:
+          target: "https://mdsoare.github.io/sam-ntlm-analyzer/"
+          rules_file_name: ".zap/rules.tsv"
+          allow_issue_writing: false
+          fail_action: true
