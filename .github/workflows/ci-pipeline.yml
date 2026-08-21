@@ -25,7 +25,7 @@ jobs:
 
     steps:
       - name: Checkout do Repositório
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
 
@@ -64,7 +64,7 @@ jobs:
 
     steps:
       - name: Checkout do Repositório
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Inicializar CodeQL
         uses: github/codeql-action/init@v3
@@ -86,7 +86,7 @@ jobs:
 
     steps:
       - name: Checkout do Repositório
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Executar Varredura Semgrep
         run: semgrep scan --config auto --sarif --output=semgrep.sarif
@@ -116,7 +116,7 @@ jobs:
 
     steps:
       - name: Checkout do Repositório
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Executar Varredura Trivy (Repository)
         uses: aquasecurity/trivy-action@master
@@ -142,7 +142,7 @@ jobs:
 
     steps:
       - name: Checkout do Repositório
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Checar se existem dependências externas não autorizadas no HTML
         run: |
@@ -181,7 +181,7 @@ jobs:
 
     steps:
       - name: Checkout do Repositório
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Empacotar Aplicação
         run: |
