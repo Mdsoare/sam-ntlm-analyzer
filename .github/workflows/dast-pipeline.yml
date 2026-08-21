@@ -15,10 +15,10 @@ jobs:
 
     steps:
       - name: Checkout do Repositório
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: Executar OWASP ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.14.0
+        uses: zaproxy/action-baseline@v0.15.0
         with:
           target: "https://mdsoare.github.io/sam-ntlm-analyzer/"
           rules_file_name: ".zap/rules.tsv"
