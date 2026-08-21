@@ -25,12 +25,12 @@ jobs:
 
     steps:
       - name: Checkout do Repositório
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Configurar ambiente Node.js
-        uses: actions/setup-node@v4.1.0
+        uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
@@ -42,7 +42,7 @@ jobs:
         run: npm audit --audit-level=high
 
       - name: Scan para detecção de segredos (Secret Detection)
-        uses: trufflesecurity/trufflehog@v3.88.0
+        uses: trufflesecurity/trufflehog@v3.97.0
         with:
           extra_args: --only-verified
 
@@ -64,16 +64,16 @@ jobs:
 
     steps:
       - name: Checkout do Repositório
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v4
 
       - name: Inicializar CodeQL
-        uses: github/codeql-action/init@v3.28.10
+        uses: github/codeql-action/init@v3
         with:
           languages: javascript-typescript
           queries: security-extended,security-and-quality
 
       - name: Executar Análise CodeQL
-        uses: github/codeql-action/analyze@v3.28.10
+        uses: github/codeql-action/analyze@v3
 
   # -------------------------------------------------------------
   # JOB 3: SAST Rápido baseado em Regras com Semgrep
@@ -86,13 +86,13 @@ jobs:
 
     steps:
       - name: Checkout do Repositório
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v4
 
       - name: Executar Varredura Semgrep
         run: semgrep scan --config auto --sarif --output=semgrep.sarif
 
       - name: Upload do Relatório SARIF do Semgrep
-        uses: github/codeql-action/upload-sarif@v3.28.10
+        uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: semgrep.sarif
@@ -116,10 +116,10 @@ jobs:
 
     steps:
       - name: Checkout do Repositório
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v4
 
       - name: Executar Varredura Trivy (Repository)
-        uses: aquasecurity/trivy-action@0.29.0
+        uses: aquasecurity/trivy-action@master
         with:
           scan-type: "fs"
           scan-ref: "."
@@ -128,7 +128,7 @@ jobs:
           severity: "CRITICAL,HIGH"
 
       - name: Upload do Relatório SARIF do Trivy
-        uses: github/codeql-action/upload-sarif@v3.28.10
+        uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: "trivy-results.sarif"
@@ -142,7 +142,7 @@ jobs:
 
     steps:
       - name: Checkout do Repositório
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v4
 
       - name: Checar se existem dependências externas não autorizadas no HTML
         run: |
@@ -181,7 +181,7 @@ jobs:
 
     steps:
       - name: Checkout do Repositório
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v4
 
       - name: Empacotar Aplicação
         run: |
@@ -190,7 +190,7 @@ jobs:
           cp -r assets/ dist/
 
       - name: Subir Artefato de Build
-        uses: actions/upload-artifact@v4.6.0
+        uses: actions/upload-artifact@v4
         with:
           name: sam-forensic-analyzer-build
           path: dist/
