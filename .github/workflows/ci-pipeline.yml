@@ -25,14 +25,12 @@ jobs:
 
     steps:
       - name: Checkout do Repositório
-        # v4.2.2
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@v4.2.2
         with:
           fetch-depth: 0
 
       - name: Configurar ambiente Node.js
-        # v4.1.0
-        uses: actions/setup-node@39370e3970a6d050c3800041725e7b6e60a3127e
+        uses: actions/setup-node@v4.1.0
         with:
           node-version: "20"
           cache: "npm"
@@ -44,8 +42,7 @@ jobs:
         run: npm audit --audit-level=high
 
       - name: Scan para detecção de segredos (Secret Detection)
-        # v3.88.0
-        uses: trufflesecurity/trufflehog@main
+        uses: trufflesecurity/trufflehog@v3.88.0
         with:
           extra_args: --only-verified
 
@@ -67,19 +64,16 @@ jobs:
 
     steps:
       - name: Checkout do Repositório
-        # v4.2.2
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@v4.2.2
 
       - name: Inicializar CodeQL
-        # v3.27.4
-        uses: github/codeql-action/init@df409f7d926037205708af272e32a2f073d4b930
+        uses: github/codeql-action/init@v3.28.10
         with:
           languages: javascript-typescript
           queries: security-extended,security-and-quality
 
       - name: Executar Análise CodeQL
-        # v3.27.4
-        uses: github/codeql-action/analyze@df409f7d926037205708af272e32a2f073d4b930
+        uses: github/codeql-action/analyze@v3.28.10
 
   # -------------------------------------------------------------
   # JOB 3: SAST Rápido baseado em Regras com Semgrep
@@ -92,15 +86,13 @@ jobs:
 
     steps:
       - name: Checkout do Repositório
-        # v4.2.2
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@v4.2.2
 
       - name: Executar Varredura Semgrep
         run: semgrep scan --config auto --sarif --output=semgrep.sarif
 
       - name: Upload do Relatório SARIF do Semgrep
-        # v3.27.4
-        uses: github/codeql-action/upload-sarif@df409f7d926037205708af272e32a2f073d4b930
+        uses: github/codeql-action/upload-sarif@v3.28.10
         if: always()
         with:
           sarif_file: semgrep.sarif
@@ -124,12 +116,10 @@ jobs:
 
     steps:
       - name: Checkout do Repositório
-        # v4.2.2
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@v4.2.2
 
       - name: Executar Varredura Trivy (Repository)
-        # v0.29.0
-        uses: aquasecurity/trivy-action@18f2510ee396bbf4004029a207393d275733b32a
+        uses: aquasecurity/trivy-action@0.29.0
         with:
           scan-type: "fs"
           scan-ref: "."
@@ -138,8 +128,7 @@ jobs:
           severity: "CRITICAL,HIGH"
 
       - name: Upload do Relatório SARIF do Trivy
-        # v3.27.4
-        uses: github/codeql-action/upload-sarif@df409f7d926037205708af272e32a2f073d4b930
+        uses: github/codeql-action/upload-sarif@v3.28.10
         if: always()
         with:
           sarif_file: "trivy-results.sarif"
@@ -153,8 +142,7 @@ jobs:
 
     steps:
       - name: Checkout do Repositório
-        # v4.2.2
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@v4.2.2
 
       - name: Checar se existem dependências externas não autorizadas no HTML
         run: |
@@ -193,8 +181,7 @@ jobs:
 
     steps:
       - name: Checkout do Repositório
-        # v4.2.2
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@v4.2.2
 
       - name: Empacotar Aplicação
         run: |
@@ -203,8 +190,7 @@ jobs:
           cp -r assets/ dist/
 
       - name: Subir Artefato de Build
-        # v4.4.3
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882
+        uses: actions/upload-artifact@v4.6.0
         with:
           name: sam-forensic-analyzer-build
           path: dist/
