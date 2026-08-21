@@ -1,4 +1,4 @@
-# Configuração do GitHub Dependabot para o Analisador Forense SAM & Hashes NTLM
+# Configuração do GitHub Dependabot para o Analisador Forense do /etc/shadow
 version: 2
 updates:
   # 1. GitHub Actions (Workflows e Reusable Actions)
@@ -9,6 +9,8 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "America/Sao_Paulo"
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 5
     labels:
       - "dependencies"
@@ -33,6 +35,8 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "America/Sao_Paulo"
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 5
     labels:
       - "dependencies"
