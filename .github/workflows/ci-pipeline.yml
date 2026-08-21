@@ -30,7 +30,7 @@ jobs:
           fetch-depth: 0
 
       - name: Configurar ambiente Node.js
-        uses: actions/setup-node@39370e3970a6d050c08000b218b49a2a7db68f18
+        uses: actions/setup-node@1d0342ecc613d543710727a4b3e87d6f51f61208
         with:
           node-version: "20"
           cache: "npm"
