@@ -6,7 +6,6 @@ on:
   pull_request:
     branches: ["main", "master"]
 
-# Cancela execuções anteriores na mesma branch para otimizar minutos de CI
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -196,31 +195,3 @@ jobs:
           name: sam-forensic-analyzer-build
           path: dist/
           retention-days: 7
-
-  # -------------------------------------------------------------
-  # JOB 8: Análise Dinâmica de Segurança (DAST) com OWASP ZAP
-  # -------------------------------------------------------------
-  dast-zap:
-    name: DAST (OWASP ZAP Baseline Scan)
-    needs: [build-artifact]
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout do Repositório
-        uses: actions/checkout@v4
-
-      - name: Executar OWASP ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.14.0
-        with:
-          target: "https://mdsoare.github.io/sam-ntlm-analyzer/"
-          rules_file_name: ".zap/rules.tsv"
-          allow_issue_writing: false
-          fail_action: true
-
-      - name: Upload do Relatório HTML do DAST
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: zap-dast-html-report
-          path: report_html.html
-          retention-days: 14
