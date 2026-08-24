@@ -1,3 +1,5 @@
+@charset "UTF-8";
+
 :root {
   --bg: #030712;
   --surface: #111827;
@@ -10,13 +12,15 @@
   --success: #10b981;
   --warning: #f59e0b;
   --danger: #ef4444;
+  --font-sans: system-ui, -apple-system, blinkmacsystemfont, "Segoe UI", roboto, oxygen, ubuntu, cantarell, "Helvetica Neue", sans-serif;
+  --font-mono: ui-monospace, sfmono-regular, "SF Mono", consolas, "Liberation Mono", menlo, monospace;
 }
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: var(--font-sans);
 }
 
 body {
@@ -80,7 +84,7 @@ textarea {
   border-radius: 8px;
   color: #fff;
   font-size: 14px;
-  font-family: "Fira Code", monospace;
+  font-family: var(--font-mono);
   resize: none;
   outline: none;
 }
@@ -179,7 +183,7 @@ tr:last-child td {
 }
 
 .badge-rid {
-  font-family: "Fira Code", monospace;
+  font-family: var(--font-mono);
   background-color: #374151;
   padding: 2px 6px;
   border-radius: 4px;
@@ -187,7 +191,7 @@ tr:last-child td {
 }
 
 .hash-text {
-  font-family: "Fira Code", monospace;
+  font-family: var(--font-mono);
   color: #f43f5e;
   word-break: break-all;
   font-size: 13px;
