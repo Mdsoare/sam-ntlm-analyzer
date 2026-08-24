@@ -1,14 +1,17 @@
 {
-  "name": "sam-ntlm-forensic-analyzer",
+  "name": "sam-ntlm-analyzer",
   "version": "1.0.0",
-  "description": "Analisador Forense de SAM & Hashes NTLM - Client-Side App",
+  "description": "![CI Pipeline](https://github.com/Mdsoare/sam-ntlm-analyzer/actions/workflows/ci-pipeline.yml/badge.svg) ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Security: CSP Compliant](https://img.shields.io/badge/Security-CSP--Compliant-success.svg)",
   "main": "assets/js/script.js",
+  "type": "module",
   "scripts": {
     "lint:html": "htmlhint index.html",
-    "lint:css": "stylelint assets/cs/*.css",
+    "lint:css": "stylelint assets/css/*.css",
     "lint:js": "eslint assets/js/*.js",
     "lint": "npm run lint:html && npm run lint:css && npm run lint:js",
-    "security:audit": "npm audit --audit-level=high"
+    "lint:css:fix": "stylelint assets/css/*.css --fix",
+    "lint:js:fix": "eslint assets/js/*.js --fix",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "forensics",
@@ -18,14 +21,13 @@
     "devsecops",
     "github-pages"
   ],
-  "author": "DevSecOps Team",
+  "author": "Marcelo Soares",
   "license": "MIT",
-  "type": "module",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "eslint": "^10.8.1",
+    "eslint": "^10.9.0",
     "globals": "^17.11.0",
-    "htmlhint": "^1.1.4",
+    "htmlhint": "^1.9.2",
     "stylelint": "^17.14.1",
     "stylelint-config-standard": "^40.0.0"
   }
