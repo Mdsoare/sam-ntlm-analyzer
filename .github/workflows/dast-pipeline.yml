@@ -56,6 +56,7 @@ jobs:
         uses: projectdiscovery/nuclei-action@cc153d0541e1adf8a42bbe31c0a4fb2376147538
         with:
           install-only: true
+          cache: false
 
       - name: Executar Nuclei Scan
         run: |
