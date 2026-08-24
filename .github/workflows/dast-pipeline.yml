@@ -57,8 +57,9 @@ jobs:
         uses: projectdiscovery/nuclei-action@cc153d0541e1adf8a42bbe31c0a4fb2376147538
         continue-on-error: true
         with:
-          cache: false
-          args: "-u https://mdsoare.github.io/sam-ntlm-analyzer/ -exclude-templates exposure/tokens/,http/exposures/ -et ssl,tls,dns,caa,waf -eid http-missing-security-headers,missing-sri,wildcard-tls,ssl-dns-names,ssl-issuer,caa-fingerprint,aaaa-fingerprint,waf-detect -sarif-export nuclei.sarif -silent -no-interactivity"
+          target: "https://mdsoare.github.io/sam-ntlm-analyzer/"
+          sarif-export: "nuclei.sarif"
+          args: "-silent -no-interactivity -exclude-tags ssl,tls,dns,caa,waf"
 
       - name: Tratar Arquivo SARIF Ausente ou Vazio
         if: always()
