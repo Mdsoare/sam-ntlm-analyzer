@@ -1,4 +1,4 @@
-name: OWASP ZAP DAST Post-Deploy Scan
+name: OWASP ZAP & Nuclei DAST Scan
 
 on:
   workflow_run:
@@ -6,7 +6,14 @@ on:
     types:
       - completed
 
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
+  # -------------------------------------------------------------
+  # JOB 1: DAST (OWASP ZAP Baseline Scan)
+  # -------------------------------------------------------------
   dast-zap:
     name: DAST (OWASP ZAP Baseline Scan)
     runs-on: ubuntu-latest
@@ -15,7 +22,7 @@ jobs:
 
     steps:
       - name: Checkout do Repositório
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
       - name: Executar OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@de8ad967d3548d44ef623df22cf95c3b0baf8b25
@@ -32,3 +39,37 @@ jobs:
           name: zap-dast-html-report
           path: report_html.html
           retention-days: 14
+
+  # -------------------------------------------------------------
+  # JOB 2: DAST (Nuclei Scan)
+  # -------------------------------------------------------------
+  dast-nuclei:
+    name: DAST (Nuclei Scan)
+    runs-on: ubuntu-latest
+    needs: dast-zap
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Executar Nuclei Scan
+        uses: projectdiscovery/nuclei-action@cc153d0541e1adf8a42bbe31c0a4fb2376147538
+        with:
+          cache: false
+          args: "-u https://mdsoare.github.io/sam-ntlm-analyzer/ -exclude-templates exposure/tokens/,http/exposures/ -et ssl,tls,dns,caa,waf -eid http-missing-security-headers,missing-sri,wildcard-tls,ssl-dns-names,ssl-issuer,caa-fingerprint,aaaa-fingerprint,waf-detect -sarif-export nuclei.sarif"
+
+      - name: Tratar Arquivo SARIF Ausente ou Vazio
+        if: always()
+        run: |
+          if [ ! -s "./nuclei.sarif" ]; then
+            echo "⚠️ Arquivo SARIF do Nuclei não encontrado ou sem achados. Criando estrutura mínima válida..."
+            echo '{"$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemas/sarif-schema-2.1.0.json","version":"2.1.0","runs":[{"tool":{"driver":{"name":"Nuclei","informationUri":"https://nuclei.projectdiscovery.io"}},"results":[]}]}' > ./nuclei.sarif
+          fi
+
+      - name: Upload do Relatório Nuclei SARIF
+        uses: github/codeql-action/upload-sarif@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28
+        if: always()
+        with:
+          sarif_file: nuclei.sarif
+          category: Nuclei-DAST
