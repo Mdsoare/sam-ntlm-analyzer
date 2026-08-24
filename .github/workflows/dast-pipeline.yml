@@ -17,7 +17,6 @@ jobs:
   dast-zap:
     name: DAST (OWASP ZAP Baseline Scan)
     runs-on: ubuntu-latest
-    # Executa apenas se o deploy do Pages tiver sido concluído com sucesso
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
@@ -53,17 +52,18 @@ jobs:
       - name: Checkout do Repositório
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
+      - name: Instalar Nuclei CLI
+        uses: projectdiscovery/nuclei-action@cc153d0541e1adf8a42bbe31c0a4fb2376147538
+        with:
+          install-only: true
+
       - name: Executar Nuclei Scan
-        uses: projectdiscovery/nuclei-action@cc153d0541e1adf8a42bbe31c0a4fb2376147538
-        continue-on-error: true
-        with:
-          cache: false
-          - name: Executar Nuclei Scan
-        uses: projectdiscovery/nuclei-action@cc153d0541e1adf8a42bbe31c0a4fb2376147538
-        continue-on-error: true
-        with:
-          cache: false
-          args: "-u https://mdsoare.github.io/sam-ntlm-analyzer/ -sarif-export nuclei.sarif -silent -exclude-tags ssl,tls,dns,caa,waf -exclude-id http-missing-security-headers,missing-sri,fastly-debug-path,fastly-debug-ttl,fastly-debug-digest"
+        run: |
+          nuclei -u https://mdsoare.github.io/sam-ntlm-analyzer/ \
+            -sarif-export nuclei.sarif \
+            -silent \
+            -exclude-tags ssl,tls,dns,caa,waf \
+            -exclude-id http-missing-security-headers,missing-sri,fastly-debug-path,fastly-debug-ttl,fastly-debug-digest || true
 
       - name: Tratar Arquivo SARIF Ausente ou Vazio
         if: always()
