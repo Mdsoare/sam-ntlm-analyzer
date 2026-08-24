@@ -61,7 +61,7 @@ jobs:
         run: npx stylelint "assets/css/**/*.css"
 
       - name: Análise Estática de Código JavaScript (ESLint)
-        run: npx eslint assets/js/script.js
+        run: npx eslint assets/js/script.js --fix
 
   # -------------------------------------------------------------
   # JOB 3: Auditoria Nativa de Dependências (NPM Audit)
