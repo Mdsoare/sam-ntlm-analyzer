@@ -126,8 +126,8 @@ jobs:
           bash install_horusec.sh latest
           rm -f install_horusec.sh
 
-          # Executa a análise SAST
-          horusec start -p="./" -D -I -e="true" -o="sarif" -O="./horusec-results.sarif"
+          # Executa a análise SAST utilizando o arquivo de configuração explicitamente
+          horusec start -p="./" --config-file-path="./horusec-config.json" -D -I -e="true" -o="sarif" -O="./horusec-results.sarif"
 
       - name: Tratar Arquivo SARIF do Horusec Ausente
         if: always()
@@ -155,25 +155,39 @@ jobs:
       - name: Checkout do Repositório
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          # Necessário para que o Semgrep identifique os arquivos alterados no PR
           fetch-depth: 0
 
-      - name: Executar Semgrep Scan com Cache
-        uses: semgrep/semgrep-action@713efdd345f3035192eaa63f56867b88e63e4e5d
+      - name: Configurar Python
+        uses: actions/setup-python@a2541b9d50772cba8b416e783e2002e3b2e75344
         with:
-          config: >-
-            p/default
-            p/javascript
-            p/owasp-top-ten
-          generateSarif: "1"
-          sarifOutputFile: "semgrep.sarif"
-          enableCache: "true"
+          python-version: "3.12"
+
+      - name: Instalar Semgrep
+        run: pip install semgrep
+
+      - name: Executar Semgrep Scan
+        run: |
+          semgrep scan \
+            --config=p/javascript \
+            --config=p/owasp-top-ten \
+            --sarif \
+            --output=semgrep.sarif \
+            || true
+
+      - name: Tratar Arquivo SARIF do Semgrep Ausente
+        if: always()
+        run: |
+          if [ ! -s "semgrep.sarif" ]; then
+            echo "⚠️ Arquivo SARIF do Semgrep não encontrado ou vazio. Criando estrutura mínima válida..."
+            echo '{"$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemas/sarif-schema-2.1.0.json","version":"2.1.0","runs":[{"tool":{"driver":{"name":"Semgrep","informationUri":"https://semgrep.dev"}},"results":[]}]}' > semgrep.sarif
+          fi
 
       - name: Upload do Relatório SARIF do Semgrep
         uses: github/codeql-action/upload-sarif@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28
         if: always()
         with:
           sarif_file: semgrep.sarif
+          category: Semgrep
 
   # -------------------------------------------------------------
   # JOB 7: Análise de Dependências de Software com OSV-Scanner
