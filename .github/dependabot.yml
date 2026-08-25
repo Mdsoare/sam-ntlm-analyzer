@@ -1,4 +1,4 @@
-# Configuração do GitHub Dependabot para o Analisador Forense do /etc/shadow
+# Configuração do GitHub Dependabot para o Analisador Forense do SAM / NTLM
 version: 2
 updates:
   # 1. GitHub Actions (Workflows e Reusable Actions)
