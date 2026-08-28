@@ -1,6 +1,6 @@
 import globals from "globals";
 
-export default [
+export default [  
   {
     files: ["assets/js/**/*.js"],
     languageOptions: {
